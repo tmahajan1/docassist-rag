@@ -1,25 +1,22 @@
-def chunk_doc(doc: dict, max_chars: int = 800) -> list[dict]:
+def chunk_doc(doc: dict, max_chars: int = 800, overlap: int = 150) -> list[dict]:
     """
-    Split a document into smaller parts.
-    Smaller chunks help in better search results.
+    Split document into chunks with overlap.
+    Overlap helps keep context between chunks.
     """
     text = doc["content"].strip()
-    paragraphs = text.split("\n\n")
-
+    
     chunks = []
-    current = ""
+    start = 0
+    text_length = len(text)
 
-    for p in paragraphs:
-        # keep adding text until we reach size limit
-        if len(current) + len(p) <= max_chars:
-            current = f"{current}\n\n{p}" if current else p
-        else:
-            if current:
-                chunks.append(current)
-            current = p
+    while start < text_length:
+        end = start + max_chars
+        chunk_text = text[start:end]
 
-    if current:
-        chunks.append(current)
+        chunks.append(chunk_text)
+
+        # move forward but keep some overlap
+        start = end - overlap
 
     return [
         {
